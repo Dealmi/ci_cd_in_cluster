@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  db:
+    image: dealmi/postgres_sk
+    environment:
+      POSTGRES_PASSWORD: post123gre
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    volumes:
+      - data:/var/lib/postgresql/data
+    deploy:
+       placement:    
+          constraints: [node.hostname == node1]
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 80:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@fakemail.com
+      PGADMIN_DEFAULT_PASSWORD: 1qaz2wsx
+
+  grafana:
+     image: dealmi/grafana_sk
+     ports:
+       - 3000:3000
+     volumes:
+       - grafana-storage:/var/lib/grafana
+
+  jenkins:
+    image: dealmi/jenkins_sk
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - workdir:/var/tmp
+    deploy:
+       placement:    
+          constraints: [node.hostname == node3]
+
+  generator:
+    image: dealmi/generator
+    volumes: 
+      - workdir:/var/tmp
+    deploy:
+       placement:    
+          constraints: [node.hostname == node3]
+
+  service:
+    image: dealmi/service
+    ports:
+      - 8000:8000
+    volumes:
+      - workdir:/var/tmp
+    deploy:
+       placement:    
+          constraints: [node.hostname == node3]
+
+volumes:
+  data:
+  jenkins_home:
+  grafana-storage:
+  workdir:
